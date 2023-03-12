@@ -1,26 +1,132 @@
-# Use the latest 2.1 version of CircleCI pipeline process engine.
-# See: https://circleci.com/docs/2.0/configuration-reference
 version: 2.1
-
-# Define a job to be invoked later in a workflow.
-# See: https://circleci.com/docs/2.0/configuration-reference/#jobs
-jobs:
-  say-hello:
-    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
-    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
+orbs:
+  gcp-cli: circleci/gcp-cli@2.4.1
+  helm: circleci/helm@2.0.1
+executors:
+  my-custom-executor:
     docker:
-      - image: cimg/base:stable
-    # Add steps to the job
-    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
+      - image: cimg/gcp:2022.09
+        auth:
+          username: $DOCKER_HUB_USER
+          password: $DOCKER_HUB_PASSWORD
+jobs:
+  helm-deployment:
+    environment:
+      DOCKER_REPO: gcp-node-test
+      IMAGE_NAME: ctp-gke-example-ts
+      HELM_RELEASE_NAME: test
+      VERSION_PREFIX: 0.1
+      CHART_NAME: circleci-test-chart
+      GCP_PROJECT: gcp-cr-test-whiteboarding
+      GKE_CLUSTER: hackathon-test-cluster
+      GKE_REGION: us-west2
+    executor: my-custom-executor
     steps:
+      - gcp-cli/initialize
+      - setup_remote_docker:
+          version: 20.10.14
       - checkout
+      - helm/install-helm-client
+      - add_ssh_keys:
+          fingerprints:
+            - "d5:eb:63:0f:fb:87:11:46:47:7a:0f:e2:ff:e7:fe:3a"
       - run:
-          name: "Say hello"
-          command: "echo Hello, World!"
-
-# Invoke jobs via workflows
-# See: https://circleci.com/docs/2.0/configuration-reference/#workflows
+          name: Setup Env Variables
+          command: |
+            echo 'export TAG="${VERSION_PREFIX}.${CIRCLE_BUILD_NUM}"' >> "$BASH_ENV"
+            echo 'export RELEASE_NAME="${HELM_RELEASE_NAME}"' >> "$BASH_ENV"
+            echo 'export CHART_NAME="${CHART_NAME}"' >> "$BASH_ENV"
+            echo 'export CHART_REPO_NAME="${CIRCLE_PROJECT_REPONAME}"' >> "$BASH_ENV"
+      - run:
+          name: Update Helm Chart
+          command: |
+            git clone "https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git"
+            git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME checkout $CIRCLE_BRANCH
+            git -C /home/circleci/project/$CIRCLECI_PROJECT_REPONAME config --global user.email "circleci@crunchyroll.com"
+            git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME config --global user.name "$CIRCLE_JOB"
+            yq -i '.version=strenv(TAG)' /home/circleci/project/$CIRCLE_PROJECT_REPONAME/charts/$CHART_NAME/Chart.yaml
+            yq -i '.appVersion=strenv(TAG)' /home/circleci/project/$CIRCLE_PROJECT_REPONAME/charts/$CHART_NAME/Chart.yaml
+            git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME add .
+            git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME commit -m "[skip ci] Helm chart version update"
+            git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME push
+  build-image:
+    environment:
+      DOCKER_REPO: gcp-node-test
+      IMAGE_NAME: ctp-gke-example-ts
+      VERSION_PREFIX: 0.1
+      GCP_PROJECT: gcp-cr-test-whiteboarding
+      GKE_CLUSTER: hackathon-test-cluster
+      GKE_REGION: us-west2
+    executor: my-custom-executor
+    steps:
+      - gcp-cli/initialize
+      - setup_remote_docker:
+          version: 20.10.14
+      - checkout
+      - helm/install-helm-client
+      - add_ssh_keys:
+          fingerprints:
+            - "d5:eb:63:0f:fb:87:11:46:47:7a:0f:e2:ff:e7:fe:3a"
+      - run:
+          name: Setup Env Variables
+          command: |
+            echo 'export TAG="${VERSION_PREFIX}.${CIRCLE_BUILD_NUM}"' >> "$BASH_ENV"
+            echo 'export RELEASE_NAME="${HELM_RELEASE_NAME}"' >> "$BASH_ENV"
+            echo 'export CHART_NAME="${CHART_NAME}"' >> "$BASH_ENV"
+            echo 'export CHART_REPO_NAME="${CIRCLE_PROJECT_REPONAME}"' >> "$BASH_ENV"
+      - run:
+          name: Build and push container image
+          command: |
+            gcloud auth configure-docker us-docker.pkg.dev
+            docker build --build-arg NPM_TOKEN="${NPM_TOKEN}" --no-cache --progress=plain -t us-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME:latest -t us-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME:$TAG .
+            docker push us-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME:$TAG
+            docker push us-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME:latest
+  deploy-to-kubernetes:
+    circleci_ip_ranges: true
+    environment:
+      DOCKER_REPO: gcp-node-test
+      IMAGE_NAME: ctp-gke-example-ts
+      HELM_RELEASE_NAME: test
+      CHART_NAME: circleci-test-chart
+      VERSION_PREFIX: 0.1
+      GCP_PROJECT: gcp-cr-test-whiteboarding
+      GKE_CLUSTER: hackathon-test-cluster
+      GKE_REGION: us-west2
+    executor: my-custom-executor
+    steps:
+      - gcp-cli/initialize
+      - checkout
+      - helm/install-helm-client
+      - add_ssh_keys:
+          fingerprints:
+            - "d5:eb:63:0f:fb:87:11:46:47:7a:0f:e2:ff:e7:fe:3a"
+      - run:
+          name: Setup Env Variables
+          command: |
+            echo 'export TAG="${VERSION_PREFIX}.${CIRCLE_BUILD_NUM}"' >> "$BASH_ENV"
+            echo 'export RELEASE_NAME="${HELM_RELEASE_NAME}"' >> "$BASH_ENV"
+            echo 'export CHART_NAME="${CHART_NAME}"' >> "$BASH_ENV"
+            echo 'export CHART_REPO_NAME="${CIRCLE_PROJECT_REPONAME}"' >> "$BASH_ENV"      
+      - run:
+          name: Connect to Kubernetes Cluster
+          command: |
+            gcloud auth configure-docker us-docker.pkg.dev
+            gcloud container clusters get-credentials $GKE_CLUSTER --region $GKE_REGION --project $GCP_PROJECT
+      - run:
+          name: Install/Update Helm Deployment
+          command: |
+            git clone "https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git"
+            git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME checkout $CIRCLE_BRANCH
+            helm upgrade $RELEASE_NAME /home/circleci/project/$CHART_REPO_NAME/charts/$CHART_NAME -f /home/circleci/project/$CHART_REPO_NAME/charts/$CHART_NAME/values.yaml          
 workflows:
-  say-hello-workflow:
+  my-custom-workflow:
     jobs:
-      - say-hello
+      - helm-deployment
+      - build-image:
+          requires:
+            - helm-deployment
+      - deploy-to-kubernetes:
+          requires:
+            - build-image
+  
+#test1

@@ -7,19 +7,22 @@ executors:
     docker:
       - image: cimg/gcp:2022.09
         auth:
+          # ensure you have first added these secrets
+          # visit app.circleci.com/settings/project/github/crunchyroll/ctp-gke-example-ts/environment-variables
           username: $DOCKER_HUB_USER
           password: $DOCKER_HUB_PASSWORD
 jobs:
   helm-deployment:
     environment:
-      DOCKER_REPO: gcp-node-test
-      IMAGE_NAME: ctp-gke-example-ts
+      DOCKER_REPO: ctp-artifact-registry-dev
+      IMAGE_NAME: ctp-vod-dev-image
+      IMAGE_NAME_2: ctp-gcsproxy-dev-image
       HELM_RELEASE_NAME: test
       VERSION_PREFIX: 0.1
-      CHART_NAME: circleci-test-chart
-      GCP_PROJECT: gcp-cr-test-whiteboarding
-      GKE_CLUSTER: hackathon-test-cluster
-      GKE_REGION: us-west2
+      CHART_NAME: circleci-vod-chart
+      GCP_PROJECT: vi-vod-dev-4b00
+      GKE_CLUSTER: vod-gke-dev-us-west
+      GKE_REGION: us-west1
     executor: my-custom-executor
     steps:
       - gcp-cli/initialize
@@ -29,11 +32,12 @@ jobs:
       - helm/install-helm-client
       - add_ssh_keys:
           fingerprints:
-            - "d5:eb:63:0f:fb:87:11:46:47:7a:0f:e2:ff:e7:fe:3a"
+            - "02:ca:bd:ba:f7:a4:dd:4d:d7:d2:93:65:df:0c:01:a0"
       - run:
           name: Setup Env Variables
           command: |
             echo 'export TAG="${VERSION_PREFIX}.${CIRCLE_BUILD_NUM}"' >> "$BASH_ENV"
+            echo 'export TAG_2="${VERSION_PREFIX}.${CIRCLE_BUILD_NUM}"' >> "$BASH_ENV"
             echo 'export RELEASE_NAME="${HELM_RELEASE_NAME}"' >> "$BASH_ENV"
             echo 'export CHART_NAME="${CHART_NAME}"' >> "$BASH_ENV"
             echo 'export CHART_REPO_NAME="${CIRCLE_PROJECT_REPONAME}"' >> "$BASH_ENV"
@@ -42,7 +46,7 @@ jobs:
           command: |
             git clone "https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git"
             git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME checkout $CIRCLE_BRANCH
-            git -C /home/circleci/project/$CIRCLECI_PROJECT_REPONAME config --global user.email "circleci@crunchyroll.com"
+            git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME config --global user.email "circleci@crunchyroll.com"
             git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME config --global user.name "$CIRCLE_JOB"
             yq -i '.version=strenv(TAG)' /home/circleci/project/$CIRCLE_PROJECT_REPONAME/charts/$CHART_NAME/Chart.yaml
             yq -i '.appVersion=strenv(TAG)' /home/circleci/project/$CIRCLE_PROJECT_REPONAME/charts/$CHART_NAME/Chart.yaml
@@ -51,12 +55,13 @@ jobs:
             git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME push
   build-image:
     environment:
-      DOCKER_REPO: gcp-node-test
-      IMAGE_NAME: ctp-gke-example-ts
+      DOCKER_REPO: ctp-artifact-registry-dev
+      IMAGE_NAME: ctp-vod-dev-image
+      IMAGE_NAME_2: ctp-gcsproxy-dev-image
       VERSION_PREFIX: 0.1
-      GCP_PROJECT: gcp-cr-test-whiteboarding
-      GKE_CLUSTER: hackathon-test-cluster
-      GKE_REGION: us-west2
+      GCP_PROJECT: vi-vod-dev-4b00
+      GKE_CLUSTER: vod-gke-dev-us-west
+      GKE_REGION: us-west1
     executor: my-custom-executor
     steps:
       - gcp-cli/initialize
@@ -66,44 +71,54 @@ jobs:
       - helm/install-helm-client
       - add_ssh_keys:
           fingerprints:
-            - "d5:eb:63:0f:fb:87:11:46:47:7a:0f:e2:ff:e7:fe:3a"
+            - "02:ca:bd:ba:f7:a4:dd:4d:d7:d2:93:65:df:0c:01:a0"
       - run:
           name: Setup Env Variables
           command: |
             echo 'export TAG="${VERSION_PREFIX}.${CIRCLE_BUILD_NUM}"' >> "$BASH_ENV"
+            echo 'export TAG_2="${VERSION_PREFIX}.${CIRCLE_BUILD_NUM}"' >> "$BASH_ENV"
             echo 'export RELEASE_NAME="${HELM_RELEASE_NAME}"' >> "$BASH_ENV"
             echo 'export CHART_NAME="${CHART_NAME}"' >> "$BASH_ENV"
-            echo 'export CHART_REPO_NAME="${CIRCLE_PROJECT_REPONAME}"' >> "$BASH_ENV"
+            echo 'export CHART_REPO_NAME="${CIRCLE_PROJECT_REPONAME}"' >> "$BASH_ENV"      
       - run:
           name: Build and push container image
           command: |
             gcloud auth configure-docker us-docker.pkg.dev
-            docker build --build-arg NPM_TOKEN="${NPM_TOKEN}" --no-cache --progress=plain -t us-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME:latest -t us-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME:$TAG .
+            # docker build --build-arg NPM_TOKEN="${NPM_TOKEN}" --no-cache --progress=plain -t us-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME:latest -t us-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME:$TAG .
+            docker build -f /home/circleci/project/Dockerfile-1 --no-cache --progress=plain -t us-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME:latest -t us-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME:$TAG .
             docker push us-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME:$TAG
             docker push us-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME:latest
+      - run:
+          name: Build and push container image 2
+          command: |
+            gcloud auth configure-docker us-docker.pkg.dev
+            docker build -f /home/circleci/project/Dockerfile-gcs --no-cache --progress=plain -t us-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME_2:latest -t us-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME_2:$TAG_2 .
+            docker push us-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME_2:$TAG_2
+            docker push us-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME_2:latest
   deploy-to-kubernetes:
     circleci_ip_ranges: true
     environment:
-      DOCKER_REPO: gcp-node-test
+      DOCKER_REPO: ctp-artifact-registry-dev
       IMAGE_NAME: ctp-gke-example-ts
       HELM_RELEASE_NAME: test
-      CHART_NAME: circleci-test-chart
+      CHART_NAME: circleci-vod-chart
       VERSION_PREFIX: 0.1
-      GCP_PROJECT: gcp-cr-test-whiteboarding
-      GKE_CLUSTER: hackathon-test-cluster
-      GKE_REGION: us-west2
+      GCP_PROJECT: vi-vod-dev-4b00
+      GKE_CLUSTER: vod-gke-dev-us-west
+      GKE_REGION: us-west1
     executor: my-custom-executor
     steps:
       - gcp-cli/initialize
       - checkout
       - helm/install-helm-client
       - add_ssh_keys:
-          fingerprints:
-            - "d5:eb:63:0f:fb:87:11:46:47:7a:0f:e2:ff:e7:fe:3a"
-      - run:
+          fingerprints: 
+            - "02:ca:bd:ba:f7:a4:dd:4d:d7:d2:93:65:df:0c:01:a0"
+      - run:     
           name: Setup Env Variables
           command: |
             echo 'export TAG="${VERSION_PREFIX}.${CIRCLE_BUILD_NUM}"' >> "$BASH_ENV"
+            echo 'export TAG_2="${VERSION_PREFIX}.${CIRCLE_BUILD_NUM}"' >> "$BASH_ENV"
             echo 'export RELEASE_NAME="${HELM_RELEASE_NAME}"' >> "$BASH_ENV"
             echo 'export CHART_NAME="${CHART_NAME}"' >> "$BASH_ENV"
             echo 'export CHART_REPO_NAME="${CIRCLE_PROJECT_REPONAME}"' >> "$BASH_ENV"      
@@ -117,7 +132,8 @@ jobs:
           command: |
             git clone "https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git"
             git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME checkout $CIRCLE_BRANCH
-            helm upgrade $RELEASE_NAME /home/circleci/project/$CHART_REPO_NAME/charts/$CHART_NAME -f /home/circleci/project/$CHART_REPO_NAME/charts/$CHART_NAME/values.yaml          
+            helm upgrade $RELEASE_NAME /home/circleci/project/$CHART_REPO_NAME/charts/$CHART_NAME -f /home/circleci/project/$CHART_REPO_NAME/charts/$CHART_NAME/values.yaml      
+
 workflows:
   my-custom-workflow:
     jobs:
@@ -128,5 +144,3 @@ workflows:
       - deploy-to-kubernetes:
           requires:
             - build-image
-  
-#test1

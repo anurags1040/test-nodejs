@@ -1,0 +1,31 @@
+# Default values for circleci-vod-chart.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+name: vod-service
+# name-2: gcp-proxy
+
+replicaCount: 1
+
+containers:
+- name: vod
+  repository: us-docker.pkg.dev/vi-vod-dev-4b00/gcp-node-test/ctp-vod-dev-image
+  command: ["/srv/vod/sbin/nginx", "-c", "/srv/vod/conf/nginx.conf", "-p", "/srv/vod/"]
+  pullPolicy: Always
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+  containerPort: 8000
+
+- name: gcsproxy
+  repository: us-docker.pkg.dev/vi-vod-dev-4b00/gcp-node-test/ctp-gcs-proxy-dev-image
+  command: ["/gcsproxy", "-b", "0.0.0.0:8081", "-c", "a.json", "-v"]
+  pullPolicy: Always
+  tag: ""
+  containerPort: 8001 
+
+imagePullSecrets: []
+nameOverride: "circleci-vod-chart-app"
+fullnameOverride: "circleci-vod-chart"
+
+serviceName: vod-service
+port: 80

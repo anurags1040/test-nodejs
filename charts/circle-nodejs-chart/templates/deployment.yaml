@@ -14,11 +14,44 @@ spec:
       labels:
         app: {{ .Values.name }}
     spec:
+      serviceAccountName: terraform-sa-ksa
       containers:
       {{- range .Values.containers }}
       - name: {{ .name }}
         image: "{{ .repository }}:{{ .tag | default $.Chart.AppVersion }}"
-        command: {{ .command }}
+        {{- if or $.Values.env $.Values.envSecrets }}
+        env:
+          {{- range $key, $value := $.Values.env }}
+          - name: {{ $key }}
+            value: {{ $value | quote }}
+          {{- end }}
+          {{- range $key, $secret := $.Values.envSecrets }}
+          - name: {{ $key }}
+            valueFrom:
+              secretKeyRef:
+                name: {{ $secret }}
+                key: {{ $key | quote }}
+          {{- end }}
+        {{- end }}        
         ports:               
         - containerPort: {{ .containerPort }}
       {{- end }}
+      - name: cloud-sql-proxy
+        image: gcr.io/cloudsql-docker/gce-proxy:latest
+        command:
+          - "/cloud_sql_proxy"
+          # If connecting from a VPC-native GKE cluster, you can use the
+          # following flag to have the proxy connect over private IP
+          # - "-ip_address_types=PRIVATE"
+
+          # If you are not connecting with Automatic IAM, you can delete
+          # the following flag.
+          - "-enable_iam_login"
+          # tcp should be set to the port the proxy should listen on
+          # and should match the DB_PORT value set above.
+          # Defaults: MySQL: 3306, Postgres: 5432, SQLServer: 1433
+          - "-instances=peak-apparatus-379619:us-central1:private-instance-7124d943=tcp:3306"
+        securityContext:
+          # The default Cloud SQL proxy image runs as the
+          # "nonroot" user and group (uid: 65532) by default.
+          runAsNonRoot: true

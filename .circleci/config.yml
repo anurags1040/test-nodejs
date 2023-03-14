@@ -14,15 +14,15 @@ executors:
 jobs:
   helm-deployment:
     environment:
-      DOCKER_REPO: ctp-artifact-registry-dev
-      IMAGE_NAME: ctp-vod-dev-image
-      IMAGE_NAME_2: ctp-gcsproxy-dev-image
+      DOCKER_REPO: gcp-node-test
+      IMAGE_NAME: web-nodejs-image
+      IMAGE_NAME_2: api-nodejs-image
       HELM_RELEASE_NAME: test
       VERSION_PREFIX: 0.1
-      CHART_NAME: circleci-vod-chart
-      GCP_PROJECT: vi-vod-dev-4b00
-      GKE_CLUSTER: vod-gke-dev-us-west
-      GKE_REGION: us-west1
+      CHART_NAME: circleci-nodejs-chart
+      GCP_PROJECT: peak-apparatus-379619
+      GKE_CLUSTER: gke-test-us-central1
+      GKE_REGION: us-central1
     executor: my-custom-executor
     steps:
       - gcp-cli/initialize
@@ -32,7 +32,7 @@ jobs:
       - helm/install-helm-client
       - add_ssh_keys:
           fingerprints:
-            - "02:ca:bd:ba:f7:a4:dd:4d:d7:d2:93:65:df:0c:01:a0"
+            - "c9:e7:ce:79:2c:ec:19:86:dc:53:94:8e:11:64:3e:28"
       - run:
           name: Setup Env Variables
           command: |
@@ -46,7 +46,7 @@ jobs:
           command: |
             git clone "https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git"
             git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME checkout $CIRCLE_BRANCH
-            git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME config --global user.email "circleci@crunchyroll.com"
+            git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME config --global user.email "argsharma01@gmail.com"
             git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME config --global user.name "$CIRCLE_JOB"
             yq -i '.version=strenv(TAG)' /home/circleci/project/$CIRCLE_PROJECT_REPONAME/charts/$CHART_NAME/Chart.yaml
             yq -i '.appVersion=strenv(TAG)' /home/circleci/project/$CIRCLE_PROJECT_REPONAME/charts/$CHART_NAME/Chart.yaml
@@ -55,13 +55,13 @@ jobs:
             git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME push
   build-image:
     environment:
-      DOCKER_REPO: ctp-artifact-registry-dev
-      IMAGE_NAME: ctp-vod-dev-image
-      IMAGE_NAME_2: ctp-gcsproxy-dev-image
+      DOCKER_REPO: gcp-node-test
+      IMAGE_NAME: web-nodejs-image
+      IMAGE_NAME_2: api-nodejs-image
       VERSION_PREFIX: 0.1
-      GCP_PROJECT: vi-vod-dev-4b00
-      GKE_CLUSTER: vod-gke-dev-us-west
-      GKE_REGION: us-west1
+      GCP_PROJECT: peak-apparatus-379619
+      GKE_CLUSTER: gke-test-us-central1
+      GKE_REGION: us-central1
     executor: my-custom-executor
     steps:
       - gcp-cli/initialize
@@ -71,7 +71,7 @@ jobs:
       - helm/install-helm-client
       - add_ssh_keys:
           fingerprints:
-            - "02:ca:bd:ba:f7:a4:dd:4d:d7:d2:93:65:df:0c:01:a0"
+            - "c9:e7:ce:79:2c:ec:19:86:dc:53:94:8e:11:64:3e:28"
       - run:
           name: Setup Env Variables
           command: |
@@ -92,20 +92,20 @@ jobs:
           name: Build and push container image 2
           command: |
             gcloud auth configure-docker us-docker.pkg.dev
-            docker build -f /home/circleci/project/Dockerfile-gcs --no-cache --progress=plain -t us-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME_2:latest -t us-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME_2:$TAG_2 .
+            docker build -f /home/circleci/project/Dockerfile-web --no-cache --progress=plain -t us-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME_2:latest -t us-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME_2:$TAG_2 .
             docker push us-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME_2:$TAG_2
             docker push us-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME_2:latest
   deploy-to-kubernetes:
     circleci_ip_ranges: true
     environment:
-      DOCKER_REPO: ctp-artifact-registry-dev
-      IMAGE_NAME: ctp-gke-example-ts
+      DOCKER_REPO: gcp-node-test
+      IMAGE_NAME: web-nodejs-image
       HELM_RELEASE_NAME: test
-      CHART_NAME: circleci-vod-chart
+      CHART_NAME: circleci-nodejs-chart
       VERSION_PREFIX: 0.1
-      GCP_PROJECT: vi-vod-dev-4b00
-      GKE_CLUSTER: vod-gke-dev-us-west
-      GKE_REGION: us-west1
+      GCP_PROJECT: peak-apparatus-379619
+      GKE_CLUSTER: gke-test-us-central1
+      GKE_REGION: us-central1
     executor: my-custom-executor
     steps:
       - gcp-cli/initialize
@@ -113,7 +113,7 @@ jobs:
       - helm/install-helm-client
       - add_ssh_keys:
           fingerprints: 
-            - "02:ca:bd:ba:f7:a4:dd:4d:d7:d2:93:65:df:0c:01:a0"
+            - "c9:e7:ce:79:2c:ec:19:86:dc:53:94:8e:11:64:3e:28"
       - run:     
           name: Setup Env Variables
           command: |

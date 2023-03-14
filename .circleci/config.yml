@@ -48,6 +48,7 @@ jobs:
             git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME checkout $CIRCLE_BRANCH
             git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME config --global user.email "argsharma01@gmail.com"
             git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME config --global user.name "$CIRCLE_JOB"
+            ls /home/circleci/project/$CIRCLE_PROJECT_REPONAME/charts/$CHART_NAME
             yq -i '.version=strenv(TAG)' /home/circleci/project/$CIRCLE_PROJECT_REPONAME/charts/$CHART_NAME/Chart.yaml
             yq -i '.appVersion=strenv(TAG)' /home/circleci/project/$CIRCLE_PROJECT_REPONAME/charts/$CHART_NAME/Chart.yaml
             git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME add .

@@ -47,17 +47,22 @@ jobs:
             git clone "https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git"
             ls -l /home/circleci/project
             ls -l /home/circleci/project/test-nodejs/charts/circle-nodejs-chart/
-            git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME checkout $CIRCLE_BRANCH
-            echo "CHART_NAME: $CHART_NAME"
-            echo "TAG: $TAG"
-            echo "CIRCLE_PROJECT_REPONAME: $CIRCLE_PROJECT_REPONAME"
-            git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME config --global user.email "argsharma01@gmail.com"
-            git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME config --global user.name "$CIRCLE_JOB"
+            cd /home/circleci/project/$CIRCLE_PROJECT_REPONAME
+            git checkout $CIRCLE_BRANCH
+            # git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME checkout $CIRCLE_BRANCH
+            git config --global user.email "argsharma01@gmail.com"
+            git config --global user.name "$CIRCLE_JOB"
+            ls /home/circleci/project/$CIRCLE_PROJECT_REPONAME/charts/$CHART_NAME
+            # git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME config --global user.email "argsharma01@gmail.com"
+            # git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME config --global user.name "$CIRCLE_JOB"
             yq -i '.version=strenv(TAG)' /home/circleci/project/$CIRCLE_PROJECT_REPONAME/charts/$CHART_NAME/Chart.yaml
             yq -i '.appVersion=strenv(TAG)' /home/circleci/project/$CIRCLE_PROJECT_REPONAME/charts/$CHART_NAME/Chart.yaml
-            git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME add .
-            git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME commit -m "[skip ci] Helm chart version update"
-            git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME push
+            git add .
+            git commit -m "[skip ci] Helm chart version update"
+            git push
+            # git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME add .
+            # git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME commit -m "[skip ci] Helm chart version update"
+            # git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME push
   build-image:
     environment:
       DOCKER_REPO: gcp-node-test

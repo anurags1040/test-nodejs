@@ -37,7 +37,7 @@ jobs:
           name: Setup Env Variables
           command: |
             echo 'export TAG="${VERSION_PREFIX}.${CIRCLE_BUILD_NUM}"' >> "$BASH_ENV"
-            echo 'export TAG_2="${VERSION_PREFIX}.${CIRCLE_BUILD_NUM}"' >> "$BASH_ENV"
+            # echo 'export TAG_2="${VERSION_PREFIX}.${CIRCLE_BUILD_NUM}"' >> "$BASH_ENV"
             echo 'export RELEASE_NAME="${HELM_RELEASE_NAME}"' >> "$BASH_ENV"
             echo 'export CHART_NAME="${CHART_NAME}"' >> "$BASH_ENV"
             echo 'export CHART_REPO_NAME="${CIRCLE_PROJECT_REPONAME}"' >> "$BASH_ENV"
@@ -45,14 +45,9 @@ jobs:
           name: Update Helm Chart
           command: |
             git clone "https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git"
-            cd /home/circleci/project/test-nodejs/charts/circleci-nodejs-chart/
-            ls -l 
             git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME checkout $CIRCLE_BRANCH
-            echo "CHART_NAME: $CHART_NAME"
-            echo "CIRCLECI_PROJECT_REPONAME: $CIRCLE_PROJECT_REPONAME"
             git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME config --global user.email "argsharma01@gmail.com"
             git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME config --global user.name "$CIRCLE_JOB"
-            ls /home/circleci/project/$CIRCLE_PROJECT_REPONAME/charts/$CHART_NAME
             yq -i '.version=strenv(TAG)' /home/circleci/project/$CIRCLE_PROJECT_REPONAME/charts/$CHART_NAME/Chart.yaml
             yq -i '.appVersion=strenv(TAG)' /home/circleci/project/$CIRCLE_PROJECT_REPONAME/charts/$CHART_NAME/Chart.yaml
             git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME add .

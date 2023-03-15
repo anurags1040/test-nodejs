@@ -12,7 +12,7 @@ ENV PORT=3000 \
 WORKDIR /app
 
 # install app dependencies
-COPY package*.json ./
+COPY package.json ./
 RUN npm install
 
 # copy app source code

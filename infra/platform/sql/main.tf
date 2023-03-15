@@ -33,6 +33,17 @@ resource "google_sql_database_instance" "instance" {
 
   settings {
     tier = "db-f1-micro"
+
+    backup_configuration {
+      binary_log_enabled             = false
+      enabled                        = true
+      start_time                     = "12:12"
+      location                       = "us-central1"
+      transaction_log_retention_days = 7
+      # retained_backups               = 7
+      # retention_unit                 = "COUNT"
+    }
+
     ip_configuration {
       ipv4_enabled                                  = false
       private_network                               = var.network_id

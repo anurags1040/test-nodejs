@@ -2,30 +2,55 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-name: vod-service
+name: nodejs-service
 # name-2: gcp-proxy
 
 replicaCount: 1
 
 containers:
-- name: vod
-  repository: us-docker.pkg.dev/vi-vod-dev-4b00/gcp-node-test/ctp-vod-dev-image
-  command: ["/srv/vod/sbin/nginx", "-c", "/srv/vod/conf/nginx.conf", "-p", "/srv/vod/"]
+- name: web
+  repository: us-central1-docker.pkg.dev/peak-apparatus-379619/gcp-node-test/web-image
+  env:
+    - name: PORT
+      value: "3000"
+    - name: API_HOST
+      value: "http://api:4000"
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
-  containerPort: 8000
+  containerPort: 3000
 
-- name: gcsproxy
-  repository: us-docker.pkg.dev/vi-vod-dev-4b00/gcp-node-test/ctp-gcs-proxy-dev-image
-  command: ["/gcsproxy", "-b", "0.0.0.0:8081", "-c", "a.json", "-v"]
+- name: api
+  repository: us-central1-docker.pkg.dev/vi-vod-dev-4b00/gcp-node-test/api-image
+  env:
+    - name: PORT
+      value: "3000"
+    - name: DB_USER
+      valueFrom:
+        secretKeyRef:
+          name: gke-cloud-sql-secrets
+          key: username
+    - name: DB_PASS
+      valueFrom:
+        secretKeyRef:
+          name: gke-cloud-sql-secrets
+          key: password
+    - name: DB
+          valueFrom:
+            secretKeyRef:
+              name: gke-cloud-sql-secrets
+              key: database      
+    - name: DB_HOST
+      value: "10.2.0.3"
+    - name: DB_PORT
+      value: "3306"
   pullPolicy: Always
   tag: ""
-  containerPort: 8001 
+  containerPort: 3000 
 
 imagePullSecrets: []
-nameOverride: "circleci-vod-chart-app"
-fullnameOverride: "circleci-vod-chart"
+nameOverride: "circleci-nodejs-chart-app"
+fullnameOverride: "circleci-nodejs-chart"
 
-serviceName: vod-service
+serviceName: nodejs-service
 port: 80

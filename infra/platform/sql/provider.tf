@@ -6,3 +6,4 @@ data "terraform_remote_state" "shared-xpn" {
        bucket = "tt-tfstate-bucket"
        prefix = "terraform/shared-xpn/"
     }
+}

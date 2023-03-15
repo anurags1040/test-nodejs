@@ -32,7 +32,7 @@ jobs:
       - helm/install-helm-client
       - add_ssh_keys:
           fingerprints:
-            - "1f:1b:61:bc:87:d2:df:7e:61:97:e3:cf:a7:f2:52:a1"
+            - "4c:a6:1e:cf:37:95:24:4e:0e:32:ca:a5:66:4a:0d:e2"
       - run:
           name: Setup Env Variables
           command: |
@@ -79,7 +79,7 @@ jobs:
       - helm/install-helm-client
       - add_ssh_keys:
           fingerprints:
-            - "1f:1b:61:bc:87:d2:df:7e:61:97:e3:cf:a7:f2:52:a1"
+            - "4c:a6:1e:cf:37:95:24:4e:0e:32:ca:a5:66:4a:0d:e2"
       - run:
           name: Setup Env Variables
           command: |
@@ -121,7 +121,7 @@ jobs:
       - helm/install-helm-client
       - add_ssh_keys:
           fingerprints: 
-            - "1f:1b:61:bc:87:d2:df:7e:61:97:e3:cf:a7:f2:52:a1"
+            - "4c:a6:1e:cf:37:95:24:4e:0e:32:ca:a5:66:4a:0d:e2"
       - run:     
           name: Setup Env Variables
           command: |

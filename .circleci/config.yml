@@ -46,15 +46,17 @@ jobs:
           command: |
             pwd
             git clone "https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git"
+            ls -l /home/circle/project
+            ls -l /home/circleci/project/testnode-js/charts/circleci-nodejs-chart/
             git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME checkout $CIRCLE_BRANCH
-            echo $CIRCLE_BRANCH
+            echo "CHART_NAME: $CHART_NAME"
+            echo "CHART_PROJECT_REPONAME: $CHART_PROJECT_REPONAME"
             ls -la /home/circleci/project/$CIRCLE_PROJECT_REPONAME/charts/
             git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME config --global user.email "argsharma01@gmail.com"
             git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME config --global user.name "$CIRCLE_JOB"
-            echo $CHART_NAME
-            # yq -i '.version=strenv(TAG)' /home/circleci/project/$CIRCLE_PROJECT_REPONAME/charts/$CHART_NAME/Chart.yaml
-            # echo $?
-            # yq -i '.appVersion=strenv(TAG)' /home/circleci/project/$CIRCLE_PROJECT_REPONAME/charts/$CHART_NAME/Chart.yaml
+            yq -i '.version=strenv(TAG)' /home/circleci/project/$CIRCLE_PROJECT_REPONAME/charts/$CHART_NAME/Chart.yaml
+            echo $?
+            yq -i '.appVersion=strenv(TAG)' /home/circleci/project/$CIRCLE_PROJECT_REPONAME/charts/$CHART_NAME/Chart.yaml
             git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME add .
             git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME commit -m "[skip ci] Helm chart version update"
             git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME push

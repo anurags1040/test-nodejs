@@ -46,7 +46,6 @@ jobs:
           command: |
             pwd
             git clone "https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git"
-            # ls -al /home/circleci/project/$CIRCLE_PROJECT_REPONAME/
             git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME checkout $CIRCLE_BRANCH
             echo $CIRCLE_BRANCH
             ls -la /home/circleci/project/$CIRCLE_PROJECT_REPONAME/charts/$CHART_NAME

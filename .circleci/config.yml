@@ -19,7 +19,7 @@ jobs:
       IMAGE_NAME_2: api-nodejs-image
       HELM_RELEASE_NAME: test
       VERSION_PREFIX: 0.1
-      CHART_NAME: circleci-nodejs-chart
+      CHART_NAME: circle-nodejs-chart
       GCP_PROJECT: peak-apparatus-379619
       GKE_CLUSTER: gke-test-us-central1
       GKE_REGION: us-central1
@@ -52,18 +52,12 @@ jobs:
       - run:
           name: Update Helm Chart
           command: |
-            pwd
             git clone "https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git"
             git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME checkout $CIRCLE_BRANCH
-            echo "CHART_PROJECT_REPONAME: $CHART_PROJECT_REPONAME"
-            ls -la /home/circleci/project/$CIRCLE_PROJECT_REPONAME/charts/
-            cd /home/circleci/project/$CIRCLE_PROJECT_REPONAME/charts/
-            echo "CHART_NAME: $CHART_NAME"
             git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME config --global user.email "argsharma01@gmail.com"
             git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME config --global user.name "$CIRCLE_JOB"
-            yq -i '.version=strenv(TAG)' $CHART_NAME/Chart.yaml
-            echo $?
-            yq -i '.appVersion=strenv(TAG)' $CHART_NAME/Chart.yaml
+            yq -i '.version=strenv(TAG)' /home/circleci/project/$CIRCLE_PROJECT_REPONAME/charts/$CHART_NAME/Chart.yaml
+            yq -i '.appVersion=strenv(TAG)' /home/circleci/project/$CIRCLE_PROJECT_REPONAME/charts/$CHART_NAME/Chart.yaml
             git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME add .
             git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME commit -m "[skip ci] Helm chart version update"
             git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME push

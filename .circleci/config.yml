@@ -93,14 +93,14 @@ jobs:
           command: |
             gcloud auth configure-docker us-docker.pkg.dev
             # docker build --build-arg NPM_TOKEN="${NPM_TOKEN}" --no-cache --progress=plain -t us-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME:latest -t us-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME:$TAG .
-            docker build -f /home/circleci/project/api/Dockerfile-1 --no-cache --progress=plain -t us-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME:latest -t us-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME:$TAG .
+            docker build -f /home/circleci/project/api/Dockerfile --no-cache --progress=plain -t us-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME:latest -t us-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME:$TAG .
             docker push us-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME:$TAG
             docker push us-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME:latest
       - run:
           name: Build and push container image 2
           command: |
             gcloud auth configure-docker us-docker.pkg.dev
-            docker build -f /home/circleci/project/web/Dockerfile-web --no-cache --progress=plain -t us-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME_2:latest -t us-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME_2:$TAG_2 .
+            docker build -f /home/circleci/project/web/Dockerfile --no-cache --progress=plain -t us-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME_2:latest -t us-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME_2:$TAG_2 .
             docker push us-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME_2:$TAG_2
             docker push us-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME_2:latest
   deploy-to-kubernetes:

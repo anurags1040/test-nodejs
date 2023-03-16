@@ -105,7 +105,7 @@ jobs:
             docker push us-central1-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME_2:$TAG_2
             docker push us-central1-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME_2:latest
   deploy-to-kubernetes:
-    circleci_ip_ranges: true
+    # circleci_ip_ranges: true
     environment:
       DOCKER_REPO: gcp-node-test
       IMAGE_NAME: web-nodejs-image

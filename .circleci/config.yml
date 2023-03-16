@@ -144,6 +144,7 @@ jobs:
           command: |
             git clone "https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git"
             git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME checkout $CIRCLE_BRANCH
+            helm version
             helm install $RELEASE_NAME /home/circleci/project/$CHART_REPO_NAME/charts/$CHART_NAME/ --disable-openapi-validation
 
 workflows:

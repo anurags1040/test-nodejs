@@ -49,7 +49,7 @@ containers:
   containerPort: 3000 
 
 serviceAccount:
-  create: true
+  create: false
 ingress:
   enabled: false
 imagePullSecrets: []

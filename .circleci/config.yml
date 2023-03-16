@@ -110,7 +110,7 @@ jobs:
       DOCKER_REPO: gcp-node-test
       IMAGE_NAME: web-nodejs-image
       HELM_RELEASE_NAME: test
-      CHART_NAME: circleci-nodejs-chart
+      CHART_NAME: circle-nodejs-chart
       VERSION_PREFIX: 0.1
       GCP_PROJECT: peak-apparatus-379619
       GKE_CLUSTER: gke-test-us-central1

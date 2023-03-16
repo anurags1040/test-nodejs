@@ -91,7 +91,7 @@ jobs:
       - run:
           name: Build and push container image
           command: |
-            gcloud auth configure-docker us-central1-docker
+            gcloud auth configure-docker us-central1-docker.dev
             # docker build --build-arg NPM_TOKEN="${NPM_TOKEN}" --no-cache --progress=plain -t us-central1-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME:latest -t us-central1-docker/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME:$TAG .
             cd /home/circleci/project/api/
             docker build -f /home/circleci/project/api/Dockerfile --no-cache --progress=plain -t us-central1-docker/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME:latest -t us-central1-docker/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME:$TAG .
@@ -100,7 +100,7 @@ jobs:
       - run:
           name: Build and push container image 2
           command: |
-            gcloud auth configure-docker us-central1-docker
+            gcloud auth configure-docker us-central1-docker.dev
             cd /home/circleci/project/api/
             docker build -f /home/circleci/project/web/Dockerfile --no-cache --progress=plain -t us-central1-docker/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME_2:latest -t us-central1-docker/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME_2:$TAG_2 .
             docker push us-central1-docker/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME_2:$TAG_2
@@ -135,7 +135,7 @@ jobs:
       - run:
           name: Connect to Kubernetes Cluster
           command: |
-            gcloud auth configure-docker us-central1-docker
+            gcloud auth configure-docker us-central1-docker.dev
             gcloud container clusters get-credentials $GKE_CLUSTER --region $GKE_REGION --project $GCP_PROJECT
       - run:
           name: Install/Update Helm Deployment

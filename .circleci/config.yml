@@ -17,7 +17,7 @@ jobs:
       DOCKER_REPO: gcp-node-test
       IMAGE_NAME: web-nodejs-image
       IMAGE_NAME_2: api-nodejs-image
-      HELM_RELEASE_NAME: test
+      HELM_RELEASE_NAME: nodejs
       VERSION_PREFIX: 0.1
       CHART_NAME: circle-nodejs-chart
       GCP_PROJECT: peak-apparatus-379619
@@ -33,14 +33,6 @@ jobs:
       - add_ssh_keys:
           fingerprints:
             - "d8:7b:76:af:9d:b0:ba:06:6d:38:7d:a4:7f:83:c3:fd"
-      - run:
-          name: Setup Env Variables
-          command: |
-            echo 'export TAG="${VERSION_PREFIX}.${CIRCLE_BUILD_NUM}"' >> "$BASH_ENV"
-            # echo 'export TAG_2="${VERSION_PREFIX}.${CIRCLE_BUILD_NUM}"' >> "$BASH_ENV"
-            echo 'export RELEASE_NAME="${HELM_RELEASE_NAME}"' >> "$BASH_ENV"
-            echo 'export CHART_NAME="${CHART_NAME}"' >> "$BASH_ENV"
-            echo 'export CHART_REPO_NAME="${CIRCLE_PROJECT_REPONAME}"' >> "$BASH_ENV"
       - run:
           name: Setup Env Variables
           command: |
@@ -109,7 +101,7 @@ jobs:
     environment:
       DOCKER_REPO: gcp-node-test
       IMAGE_NAME: web-nodejs-image
-      HELM_RELEASE_NAME: test
+      HELM_RELEASE_NAME: nodejs
       CHART_NAME: circle-nodejs-chart
       VERSION_PREFIX: 0.1
       GCP_PROJECT: peak-apparatus-379619

@@ -128,12 +128,16 @@ jobs:
           command: |
             gcloud auth configure-docker us-central1-docker.pkg.dev
             gcloud container clusters get-credentials $GKE_CLUSTER --region $GKE_REGION --project $GCP_PROJECT
-      - run:
-          name: Install/Update Helm Deployment
-          command: |
-            git clone "https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git"
-            git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME checkout $CIRCLE_BRANCH
-            helm install $RELEASE_NAME /home/circleci/project/$CHART_REPO_NAME/charts/$CHART_NAME/ -f /home/circleci/project/$CHART_REPO_NAME/charts/$CHART_NAME/values.yaml --set postRender=""
+      - helm/install-helm-chart:
+          add-repo: https://${GH_TOKEN}@raw.githubusercontent.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/$CIRCLE_BRANCH/charts/$CHART_NAME
+          release-name: $RELEASE_NAME
+          chart: /home/circlecli/project/test-nodejs/charts/circle-nodejs-chart/      
+      # - run:
+      #     name: Install/Update Helm Deployment
+      #     command: |
+      #       git clone "https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git"
+      #       git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME checkout $CIRCLE_BRANCH
+      #       helm install $RELEASE_NAME /home/circleci/project/$CHART_REPO_NAME/charts/$CHART_NAME/ -f /home/circleci/project/$CHART_REPO_NAME/charts/$CHART_NAME/values.yaml --set postRender=""
 
 workflows:
   my-custom-workflow:

@@ -36,10 +36,10 @@ containers:
           name: gke-cloud-sql-secrets
           key: password
     - name: DB
-          valueFrom:
-            secretKeyRef:
-              name: gke-cloud-sql-secrets
-              key: database      
+      valueFrom:
+        secretKeyRef:
+          name: gke-cloud-sql-secrets
+          key: database      
     - name: DB_HOST
       value: "10.2.0.3"
     - name: DB_PORT

@@ -131,7 +131,7 @@ jobs:
       - helm/install-helm-chart:
           add-repo: https://${GH_TOKEN}@raw.githubusercontent.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/$CIRCLE_BRANCH/charts/$CHART_NAME
           release-name: $RELEASE_NAME
-          chart: /home/circleci/project/charts/circle-nodejs-chart/ 
+          chart: /home/circleci/project/charts/circle-nodejs-chart/ --disable-openapi-validation
       # - run:
       #     name: Install/Update Helm Deployment
       #     command: |

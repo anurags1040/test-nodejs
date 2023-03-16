@@ -53,4 +53,4 @@ nameOverride: "circleci-nodejs-chart-app"
 fullnameOverride: "circleci-nodejs-chart"
 
 serviceName: nodejs-service
-port: 80
+# port: 80

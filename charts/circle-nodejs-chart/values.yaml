@@ -48,7 +48,8 @@ containers:
   tag: ""
   containerPort: 3000 
 
-
+serviceAccount:
+  create: true
 imagePullSecrets: []
 nameOverride: "circleci-nodejs-chart-app"
 fullnameOverride: "circleci-nodejs-chart"

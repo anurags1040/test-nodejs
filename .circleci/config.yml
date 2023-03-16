@@ -93,17 +93,17 @@ jobs:
           command: |
             gcloud auth configure-docker us-central1-docker.pkg.dev
             cd /home/circleci/project/api/
-            docker build -f /home/circleci/project/api/Dockerfile --no-cache --progress=plain -t us-central1-docker/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME:latest -t us-central1-docker/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME:$TAG .
-            docker push us-central1-docker/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME:$TAG
+            docker build -f /home/circleci/project/api/Dockerfile --no-cache --progress=plain -t us-central1-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME:latest -t us-central1-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME:$TAG .
+            docker push us-central1-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME:$TAG
             docker push us-central1-docker/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME:latest
       - run:
           name: Build and push container image 2
           command: |
             gcloud auth configure-docker us-central1-docker.pkg.dev
             cd /home/circleci/project/api/
-            docker build -f /home/circleci/project/web/Dockerfile --no-cache --progress=plain -t us-central1-docker/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME_2:latest -t us-central1-docker/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME_2:$TAG_2 .
-            docker push us-central1-docker/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME_2:$TAG_2
-            docker push us-central1-docker/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME_2:latest
+            docker build -f /home/circleci/project/web/Dockerfile --no-cache --progress=plain -t us-central1-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME_2:latest -t us-central1-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME_2:$TAG_2 .
+            docker push us-central1-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME_2:$TAG_2
+            docker push us-central1-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME_2:latest
   deploy-to-kubernetes:
     circleci_ip_ranges: true
     environment:

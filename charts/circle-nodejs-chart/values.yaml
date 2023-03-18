@@ -36,10 +36,10 @@ containers:
           name: gke-cloud-sql-secrets
           key: password
     - name: DB
-          valueFrom:
-            secretKeyRef:
-              name: gke-cloud-sql-secrets
-              key: database      
+      valueFrom:
+        secretKeyRef:
+          name: gke-cloud-sql-secrets
+          key: database      
     - name: DB_HOST
       value: "10.2.0.3"
     - name: DB_PORT
@@ -48,9 +48,15 @@ containers:
   tag: ""
   containerPort: 3000 
 
+serviceAccount:
+  create: false
+ingress:
+  enabled: false
 imagePullSecrets: []
 nameOverride: "circleci-nodejs-chart-app"
 fullnameOverride: "circleci-nodejs-chart"
 
 serviceName: nodejs-service
+service:
+  type: NodePort
 port: 80

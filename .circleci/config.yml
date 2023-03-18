@@ -17,9 +17,9 @@ jobs:
       DOCKER_REPO: gcp-node-test
       IMAGE_NAME: web-nodejs-image
       IMAGE_NAME_2: api-nodejs-image
-      HELM_RELEASE_NAME: test
+      HELM_RELEASE_NAME: nodejs
       VERSION_PREFIX: 0.1
-      CHART_NAME: circleci-nodejs-chart
+      CHART_NAME: circle-nodejs-chart
       GCP_PROJECT: peak-apparatus-379619
       GKE_CLUSTER: gke-test-us-central1
       GKE_REGION: us-central1
@@ -32,7 +32,7 @@ jobs:
       - helm/install-helm-client
       - add_ssh_keys:
           fingerprints:
-            - "59:c0:32:6a:4d:b7:82:89:b2:3e:02:3c:cf:d4:47:cf"
+            - "d8:7b:76:af:9d:b0:ba:06:6d:38:7d:a4:7f:83:c3:fd"
       - run:
           name: Setup Env Variables
           command: |
@@ -44,15 +44,11 @@ jobs:
       - run:
           name: Update Helm Chart
           command: |
-            pwd
             git clone "https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git"
-            ls -al /home/circleci/project/$CIRCLE_PROJECT_REPONAME/
             git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME checkout $CIRCLE_BRANCH
             git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME config --global user.email "argsharma01@gmail.com"
             git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME config --global user.name "$CIRCLE_JOB"
-            echo $CHART_NAME
             yq -i '.version=strenv(TAG)' /home/circleci/project/$CIRCLE_PROJECT_REPONAME/charts/$CHART_NAME/Chart.yaml
-            echo $?
             yq -i '.appVersion=strenv(TAG)' /home/circleci/project/$CIRCLE_PROJECT_REPONAME/charts/$CHART_NAME/Chart.yaml
             git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME add .
             git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME commit -m "[skip ci] Helm chart version update"
@@ -75,7 +71,7 @@ jobs:
       - helm/install-helm-client
       - add_ssh_keys:
           fingerprints:
-            - "c9:e7:ce:79:2c:ec:19:86:dc:53:94:8e:11:64:3e:28"
+            - "d8:7b:76:af:9d:b0:ba:06:6d:38:7d:a4:7f:83:c3:fd"
       - run:
           name: Setup Env Variables
           command: |
@@ -87,25 +83,26 @@ jobs:
       - run:
           name: Build and push container image
           command: |
-            gcloud auth configure-docker us-docker.pkg.dev
-            # docker build --build-arg NPM_TOKEN="${NPM_TOKEN}" --no-cache --progress=plain -t us-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME:latest -t us-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME:$TAG .
-            docker build -f /home/circleci/project/Dockerfile-1 --no-cache --progress=plain -t us-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME:latest -t us-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME:$TAG .
-            docker push us-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME:$TAG
-            docker push us-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME:latest
+            gcloud auth configure-docker us-central1-docker.pkg.dev
+            cd /home/circleci/project/api/
+            docker build -f /home/circleci/project/api/Dockerfile --no-cache --progress=plain -t us-central1-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME:latest -t us-central1-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME:$TAG .
+            docker push us-central1-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME:$TAG
+            docker push us-central1-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME:latest
       - run:
           name: Build and push container image 2
           command: |
-            gcloud auth configure-docker us-docker.pkg.dev
-            docker build -f /home/circleci/project/Dockerfile-web --no-cache --progress=plain -t us-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME_2:latest -t us-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME_2:$TAG_2 .
-            docker push us-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME_2:$TAG_2
-            docker push us-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME_2:latest
+            gcloud auth configure-docker us-central1-docker.pkg.dev
+            cd /home/circleci/project/api/
+            docker build -f /home/circleci/project/web/Dockerfile --no-cache --progress=plain -t us-central1-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME_2:latest -t us-central1-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME_2:$TAG_2 .
+            docker push us-central1-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME_2:$TAG_2
+            docker push us-central1-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME_2:latest
   deploy-to-kubernetes:
-    circleci_ip_ranges: true
+    # circleci_ip_ranges: true
     environment:
       DOCKER_REPO: gcp-node-test
       IMAGE_NAME: web-nodejs-image
-      HELM_RELEASE_NAME: test
-      CHART_NAME: circleci-nodejs-chart
+      HELM_RELEASE_NAME: nodejs
+      CHART_NAME: circle-nodejs-chart
       VERSION_PREFIX: 0.1
       GCP_PROJECT: peak-apparatus-379619
       GKE_CLUSTER: gke-test-us-central1
@@ -117,7 +114,7 @@ jobs:
       - helm/install-helm-client
       - add_ssh_keys:
           fingerprints: 
-            - "c9:e7:ce:79:2c:ec:19:86:dc:53:94:8e:11:64:3e:28"
+            - "d8:7b:76:af:9d:b0:ba:06:6d:38:7d:a4:7f:83:c3:fd"
       - run:     
           name: Setup Env Variables
           command: |
@@ -129,14 +126,14 @@ jobs:
       - run:
           name: Connect to Kubernetes Cluster
           command: |
-            gcloud auth configure-docker us-docker.pkg.dev
+            gcloud auth configure-docker us-central1-docker.pkg.dev
             gcloud container clusters get-credentials $GKE_CLUSTER --region $GKE_REGION --project $GCP_PROJECT
       - run:
           name: Install/Update Helm Deployment
           command: |
             git clone "https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git"
             git -C /home/circleci/project/$CIRCLE_PROJECT_REPONAME checkout $CIRCLE_BRANCH
-            helm upgrade $RELEASE_NAME /home/circleci/project/$CHART_REPO_NAME/charts/$CHART_NAME -f /home/circleci/project/$CHART_REPO_NAME/charts/$CHART_NAME/values.yaml      
+            helm upgrade $RELEASE_NAME /home/circleci/project/$CHART_REPO_NAME/charts/$CHART_NAME/ -f /home/circleci/project/$CHART_REPO_NAME/charts/$CHART_NAME/values.yaml
 
 workflows:
   my-custom-workflow:
@@ -149,4 +146,4 @@ workflows:
           requires:
             - build-image
 
-#test2
+#test20

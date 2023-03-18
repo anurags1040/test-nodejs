@@ -1,6 +1,6 @@
 FROM node:14
 
-# set environment variables
+
 ENV PORT=3000 \
     DB=$DB_NAME \
     DBUSER=$DB_USER \
@@ -8,16 +8,16 @@ ENV PORT=3000 \
     DBHOST=$DB_HOST \
     DBPORT=3306
 
-# create app directory
+
 WORKDIR /app
 
-# install app dependencies
-COPY package*.json ./
+
+COPY ./package.json ./
 RUN npm install
 
-# copy app source code
+
 COPY . .
 
-# expose port and start app
+
 EXPOSE 3000
 CMD [ "npm", "start" ]

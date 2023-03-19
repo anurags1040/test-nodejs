@@ -92,7 +92,7 @@ jobs:
           name: Build and push container image 2
           command: |
             gcloud auth configure-docker us-central1-docker.pkg.dev
-            cd /home/circleci/project/api/
+            cd /home/circleci/project/web/
             docker build -f /home/circleci/project/web/Dockerfile --no-cache --progress=plain -t us-central1-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME_2:latest -t us-central1-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME_2:$TAG_2 .
             docker push us-central1-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME_2:$TAG_2
             docker push us-central1-docker.pkg.dev/$GCP_PROJECT/$DOCKER_REPO/$IMAGE_NAME_2:latest

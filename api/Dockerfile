@@ -8,7 +8,7 @@ RUN npm install
 
 EXPOSE 8080
 ENV PORT=8080
-ENV DB=postgres://api_user:apipassword@localhost/node-3tier-api
+ENV DB=peak-apparatus-379619:us-central1:private-instance-7124d943=tcp:3306
 
 HEALTHCHECK --interval=10s --timeout=3s \
     CMD curl -f -s http://localhost:8080/api/status

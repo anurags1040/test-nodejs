@@ -32,6 +32,7 @@ deployment2:
       value: "10.65.0.3"
     - name: DB_PORT
       value: "5432"
+  containerPort: 8080
 
 
 

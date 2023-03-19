@@ -3,16 +3,16 @@ kind: Deployment
 metadata:
   name: web-tier
   labels:
-    app: nodejs-app
+    app: nodejs-web-app
 spec:
   replicas: {{ .Values.deployment1.replicas }}
   selector:
     matchLabels:
-      app: nodejs-app
+      app: nodejs-web-app
   template:
     metadata:
       labels:
-        app: nodejs-app
+        app: nodejs-web-app
     spec:
       serviceAccountName: terraform-sa-ksa
       containers:

@@ -5,8 +5,14 @@ metadata:
   annotations: 
     kubernetes.io/ingress.class: "gce"
 spec:
-  defaultBackend:
-    service:
-      name: {{ .Values.serviceName }}
-      port:
-        number: {{ .Values.port }}
+  rules:
+  - http:
+      paths:
+      - path: /web
+        backend:
+          serviceName: nodejs-web-app
+          servicePort: 80
+      - path: /api
+        backend:
+          serviceName: nodejs-api-app
+          servicePort: 80

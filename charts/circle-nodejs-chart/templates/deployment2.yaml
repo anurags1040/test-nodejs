@@ -34,7 +34,6 @@ spec:
         {{- end }}        
         ports:               
         - containerPort: {{ .Values.deployment2.containerPort }}
-      {{- end }}
       - name: cloud-sql-proxy
         image: gcr.io/cloudsql-docker/gce-proxy:latest
         command:

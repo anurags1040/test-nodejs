@@ -1,18 +1,17 @@
-
 FROM node:14
 
-
+COPY ./bin /app/bin
+COPY ./public /app/public
+COPY ./routes /app/routes
+COPY ./views /app/views
+COPY ./app.js /app/
+COPY ./package.json /app/
 WORKDIR /app
-
-COPY ./package.json ./
-
 RUN npm install
 
-COPY . .
+EXPOSE 80
+ENV PORT=80
+ENV API_HOST=api.local
 
-ENV PORT=3000
-ENV API_HOST=http://api:4000
 
-EXPOSE 3000
-
-CMD [ "npm", "start" ]
+ENTRYPOINT ["npm", "start"]

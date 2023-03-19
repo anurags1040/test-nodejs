@@ -1,23 +1,16 @@
 FROM node:14
 
-
-ENV PORT=3000 \
-    DB=$DB_NAME \
-    DBUSER=$DB_USER \
-    DBPASS=$DB_PASSWORD \
-    DBHOST=$DB_HOST \
-    DBPORT=3306
-
-
+COPY ./bin /app/bin
+COPY ./app.js /app/
+COPY ./package.json /app/
 WORKDIR /app
-
-
-COPY ./package.json ./
 RUN npm install
 
+EXPOSE 8080
+ENV PORT=8080
+ENV DB=postgres://api_user:apipassword@localhost/node-3tier-api
 
-COPY . .
+HEALTHCHECK --interval=10s --timeout=3s \
+    CMD curl -f -s http://localhost:8080/api/status
 
-
-EXPOSE 3000
-CMD [ "npm", "start" ]
+ENTRYPOINT ["npm", "start"]

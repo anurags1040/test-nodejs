@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-tier
+  labels:
+    app: nodejs-app
+spec:
+  replicas: {{ .Values.deployment1.replicas }}
+  selector:
+    matchLabels:
+      app: nodejs-app
+  template:
+    metadata:
+      labels:
+        app: nodejs-app
+    spec:
+      serviceAccountName: terraform-sa-ksa
+      containers:
+      - name: web
+        image: "{{ .Values.deployment1.image }}:{{ .tag | default $.Chart.AppVersion }}"
+        {{- if or $.Values.deployment1.env $.Values.deployment1.envSecrets }}
+        env:
+          {{- range $key, $value := $.Values.env }}
+          - name: {{ $key }}
+            value: {{ $value | quote }}
+          {{- end }}
+        ports:               
+        - containerPort: {{ Values.deployment1.containerPort }}
+      {{- end }}
+      - name: cloud-sql-proxy
+        image: gcr.io/cloudsql-docker/gce-proxy:latest
+        command:
+          - "/cloud_sql_proxy"
+          # If connecting from a VPC-native GKE cluster, you can use the
+          # following flag to have the proxy connect over private IP
+          - "-ip_address_types=PRIVATE"
+
+          # tcp should be set to the port the proxy should listen on
+          # and should match the DB_PORT value set above.
+          # Defaults: MySQL: 3306, Postgres: 5432, SQLServer: 1433
+          - "-instances=peak-apparatus-379619:us-central1:private-instance-3f6dd53c=tcp:5432"
+        securityContext:
+          # The default Cloud SQL proxy image runs as the
+          # "nonroot" user and group (uid: 65532) by default.
+          runAsNonRoot: true

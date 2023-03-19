@@ -1,15 +1,58 @@
+# values for deployment1
+
+deployment1:
+  replicas: 1
+  image: us-central1-docker.pkg.dev/peak-apparatus-379619/gcp-node-test/web-nodejs-image
+  env:
+    - name: PORT
+      value: "80"
+    - name: API_HOST
+      value: "api.local"
+  containerPort: 80
+
+deployment2:
+  replicas: 1
+  image: us-central1-docker.pkg.dev/peak-apparatus-379619/gcp-node-test/api-nodejs-image
+  env:
+    - name: PORT
+      value: "8080"
+    - name: DB_USER
+      valueFrom:
+        secretKeyRef:
+          name: gke-cloud-sql-secrets
+          key: username
+    - name: DB_PASS
+      valueFrom:
+        secretKeyRef:
+          name: gke-cloud-sql-secrets
+          key: password
+    - name: DB
+      value: postgres://$(DB_USER):$(DB_PASSWORD)@/private-instance-3f6dd53c?jost=/cloudsql/peak-apparatus-379619:us-central1:private-instance-3f6dd53c       
+    - name: DB_HOST
+      value: "10.65.0.3"
+    - name: DB_PORT
+      value: "5432"
+
+
+
+
+
+
+
+
 # Default values for circleci-vod-chart.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-name: nodejs-service
+name: web-service
+
 # name-2: gcp-proxy
 
 replicaCount: 1
 
 containers:
 - name: web
-  repository: us-central1-docker.pkg.dev/peak-apparatus-379619/gcp-node-test/web-image
+  repository: us-central1-docker.pkg.dev/peak-apparatus-379619/gcp-node-test/web-nodejs-image
   env:
     - name: PORT
       value: "3000"
@@ -21,7 +64,7 @@ containers:
   containerPort: 3000
 
 - name: api
-  repository: us-central1-docker.pkg.dev/vi-vod-dev-4b00/gcp-node-test/api-image
+  repository: us-central1-docker.pkg.dev/vi-vod-dev-4b00/gcp-node-test/api-nodejs-image
   env:
     - name: PORT
       value: "3000"

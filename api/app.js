@@ -4,11 +4,11 @@ var uuid = require('node-uuid');
 
 var pg = require('pg');
 const conString = {
-    user: process.env.DBUSER,
-    database: process.env.DB,
-    password: process.env.DBPASS,
-    host: process.env.DBHOST,
-    port: process.env.DBPORT                
+    // user: process.env.DBUSER,
+    database: process.env.DB
+    // password: process.env.DBPASS,
+    // host: process.env.DBHOST,
+    // port: process.env.DBPORT                
 };
 
 // Routes

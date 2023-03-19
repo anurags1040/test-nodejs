@@ -8,9 +8,10 @@ RUN npm install
 
 EXPOSE 8080
 ENV PORT=8080
-ENV DB=peak-apparatus-379619:us-central1:private-instance-7124d943=tcp:3306
-
-HEALTHCHECK --interval=10s --timeout=3s \
-    CMD curl -f -s http://localhost:8080/api/status
+ENV DB=postgres://$(username):$(password)@/private-instance-3f6dd53c?jost=/cloudsql/peak-apparatus-379619:us-central1:private-instance-3f6dd53c
+ENV DBUSER=$DB_USER
+ENV DBPASS=$DB_PASSWORD
+ENV DBPORT=5432
+# ENV DB=peak-apparatus-379619:us-central1:private-instance-3f6dd53c
 
 ENTRYPOINT ["npm", "start"]

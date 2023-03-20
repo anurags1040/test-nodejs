@@ -8,6 +8,7 @@ deployment1:
       value: "80"
     - name: API_HOST
       value: "api.local"
+  tag: ""
   containerPort: 80
 
 deployment2:
@@ -32,6 +33,7 @@ deployment2:
       value: "10.65.0.3"
     - name: DB_PORT
       value: "5432"
+  tag: ""
   containerPort: 8080
 serviceAccount:
   create: false
@@ -40,8 +42,3 @@ ingress:
 imagePullSecrets: []
 nameOverride: "circleci-nodejs-chart-app"
 fullnameOverride: "circleci-nodejs-chart"
-
-# serviceName: nodejs-service
-# service:
-#   type: NodePort
-# port: 80

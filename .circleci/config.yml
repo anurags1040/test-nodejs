@@ -17,7 +17,7 @@ jobs:
       DOCKER_REPO: gcp-node-test
       IMAGE_NAME: web-nodejs-image
       IMAGE_NAME_2: api-nodejs-image
-      HELM_RELEASE_NAME: nodejs-app
+      HELM_RELEASE_NAME: nodejs
       VERSION_PREFIX: 0.1
       CHART_NAME: circle-nodejs-chart
       GCP_PROJECT: peak-apparatus-379619
@@ -101,7 +101,7 @@ jobs:
     environment:
       DOCKER_REPO: gcp-node-test
       IMAGE_NAME: web-nodejs-image
-      HELM_RELEASE_NAME: nodejs-app
+      HELM_RELEASE_NAME: nodejs
       CHART_NAME: circle-nodejs-chart
       VERSION_PREFIX: 0.1
       GCP_PROJECT: peak-apparatus-379619

@@ -17,7 +17,7 @@ spec:
       serviceAccountName: terraform-sa-ksa
       containers:
       - name: api
-        image: "{{ .Values.deployment2.image }}:{{ .tag | default $.Chart.AppVersion }}"
+        image: "{{ .Values.deployment2.image }}:{{ .Values.deployment1.tag | default $.Chart.AppVersion }}"
         {{- if or $.Values.env $.Values.envSecrets }}
         env:
           {{- range $key, $value := $.Values.env }}

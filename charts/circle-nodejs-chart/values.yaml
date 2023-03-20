@@ -41,7 +41,7 @@ imagePullSecrets: []
 nameOverride: "circleci-nodejs-chart-app"
 fullnameOverride: "circleci-nodejs-chart"
 
-serviceName: nodejs-service
-service:
-  type: NodePort
-port: 80
+# serviceName: nodejs-service
+# service:
+#   type: NodePort
+# port: 80

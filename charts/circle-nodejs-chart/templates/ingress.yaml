@@ -3,6 +3,8 @@ kind: Ingress
 metadata:
   name: nodejs-ingress
   annotations: 
+    kubernetes.io/ingress.global-static-ip-name: toptal-frontend
+    networking.gke.io/managed-certificates: managed-cert
     kubernetes.io/ingress.class: "gce"
 spec:
   defaultBackend:

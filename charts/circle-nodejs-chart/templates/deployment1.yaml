@@ -26,6 +26,12 @@ spec:
           {{- end }}
         ports:               
         - containerPort: {{ .Values.deployment1.containerPort }}
+        readinessProbe:
+          httpGet:
+            path: "/healthz"
+            port: 8000
+          initialDelaySeconds: 10
+          timeoutSeconds: 5
       {{- end }}
       - name: cloud-sql-proxy
         image: gcr.io/cloudsql-docker/gce-proxy:latest
